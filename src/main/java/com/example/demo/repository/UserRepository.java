@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.User;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -10,11 +11,16 @@ import java.util.Optional;
 @Repository
 public class UserRepository {
     private final JdbcClient jdbcClient;
-    public UserRepository(JdbcClient jdbcClient){
+    private final int _maxRows;
+    public UserRepository(JdbcClient jdbcClient, @Value("${database.maxRows:10}") int maxRows){
         this.jdbcClient = jdbcClient;
+        this._maxRows = maxRows;
     }
     public List<User> GetUsers(){
-        var users = jdbcClient.sql("select id, name, email, phone from dbo.[User]").query(User.class).list();
+        var users = jdbcClient.sql("select top (?) id, name, email, phone from dbo.[User]")
+                .param(_maxRows)
+                .query(User.class)
+                .list();
         return users;
     }
 
