@@ -9,7 +9,7 @@ It's a rest Api created using:
 Before start the project is needed to have the following objects in the Sql server database:
 ```sql
 CREATE TABLE [dbo].[User](
-[id] [int] NOT NULL,
+[id] [int] IDENTITY(1,1) NOT NULL,
 [name] [varchar](50) NULL,
 [email] [varchar](50) NULL,
 [phone] [varchar](50) NULL

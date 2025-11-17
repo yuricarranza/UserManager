@@ -31,12 +31,18 @@ public class UserController {
     }
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody @Valid User user){
-        _userRepository.CreateUser(user);
+        var userIdGenerated = _userRepository.CreateUser(user);
+        user.setId(userIdGenerated);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(user.getId())
+                .buildAndExpand(userIdGenerated)
                 .toUri();
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(user);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody @Valid User user){
+        _userRepository.UpdateUser(id, user);
+        return ResponseEntity.ok().build();
     }
 }

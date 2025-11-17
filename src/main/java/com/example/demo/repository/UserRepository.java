@@ -3,6 +3,8 @@ package com.example.demo.repository;
 import com.example.demo.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,11 +33,22 @@ public class UserRepository {
         return user;
     }
 
-    public void CreateUser(User user){
-        jdbcClient.sql("insert into dbo.[User](id, name, email, phone) values (:id, :name, :email, :phone)")
-                .param("id", user.getId())
+    public int CreateUser(User user){
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcClient.sql("insert into dbo.[User](name, email, phone) output inserted.id values (:name, :email, :phone)")
                 .param("name", user.getName())
                 .param("email", user.getEmail())
-                .param("phone", user.getPhone()).update();
+                .param("phone", user.getPhone())
+                .update(keyHolder, "id");
+        return keyHolder.getKeyAs(Integer.class);
+    }
+
+    public void UpdateUser(int userId, User user){
+        jdbcClient.sql("update dbo.[User] set name = :name, email = :email, phone = :phone where id = :id")
+                .param("name", user.getName())
+                .param("email", user.getEmail())
+                .param("phone", user.getPhone())
+                .param("id", userId)
+                .update();
     }
 }
